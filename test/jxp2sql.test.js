@@ -42,6 +42,14 @@ describe("Initialise", () => {
         const result = await jxp2mysql.update_row("checkin", "5f9036a079ab323a27e60547", data);
         expect(result.affectedRows).toBe(1);
     })
+    test("It should clear a table", async() => {
+        const result = await jxp2mysql.clear_table("checkin");
+        expect(result.affectedRows).toBe(0);
+    })
+    test("It should upload a collection", async() => {
+        const result = await jxp2mysql.upload_collection("checkin");
+        expect(result.affectedRows).toBeGreaterThan(1);
+    })
     test("It should delete a table", async () => {
         const result = await jxp2mysql.delete_table("checkin");
         expect(result).toBeTruthy();

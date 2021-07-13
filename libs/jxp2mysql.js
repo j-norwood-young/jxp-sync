@@ -126,49 +126,34 @@ class JXP2SQL {
         }
     }
 
-    async clear_table() { // TODO
+    async clear_table(collection) {
         try {
-            let table = this.dataset.table(this.collection);
-            try {
-                await table.delete();
-            } catch(err) {
-                console.log(err.message);
-            }
-            await this.create_table();
+            const sql = `TRUNCATE TABLE ${pluralize(collection)}`;
+            const result = await this.query(sql);
+            return result;
         } catch(err) {
             return Promise.reject(err);
         }
     }
 
-    async upload_collection() { // TODO
+    async upload_collection(collection) {
         try {
-            // await this.clear_table();
-            let table = this.dataset.table(this.collection);
-            const [exists] = await table.exists()
-            if (!exists) {
-                console.log("Table doesn't exist, creating...")
-                await this.create_table();
-                // return;
+            const schema = await this.schema(collection);
+            const original_fields = schema.map(field => field.original);
+            const fields = schema.map(field => field.name);
+            const data = (await this.apihelper.get(collection, { fields: fields.join(",") })).data;
+            const prepped_data = await this.prep_data(collection, data);
+            const rows = [];
+            for (let row of data) {
+                let row_data = [];
+                for (let field of fields) {
+                    row_data.push(row[field] ? mysql.escape(row[field]) : "NULL");
+                }
+                rows.push(row_data);
             }
-            const [metadata] = await table.getMetadata();
-            metadata.schema = await this.schema(this.collection);
-            const fields = metadata.schema.map(field => field.name);
-            const [apiResponse] = await table.setMetadata(metadata);
-            const data = (await this.apihelper.get(this.collection, { fields: fields.join(",") })).data;
-            if (!data.length) {
-                console.log("No records to update at this point");
-                return;
-            }
-            // console.log({data});
-            const prepped_data = await this.prep_data(data);
-            const fname = `/tmp/${this.collection}.json`;
-            const fh = await fs.open(fname, 'w');
-            for (let row of prepped_data) {
-                await fh.write(JSON.stringify(row) + "\n");
-            }
-            fh.close();
-            // console.log({prepped_data});
-            const result = await table.load(fname, { format: "JSON", writeDisposition: 'WRITE_TRUNCATE', });
+            const sql = `INSERT INTO ${pluralize(collection)} (${fields.join(", ")}) VALUES ${rows.map(row => `(${ row.join(", ") })`).join(", ")}`;
+            const result = await this.query(sql);
+            return result;
         } catch(err) {
             console.log("Error!");
             console.error(err);
