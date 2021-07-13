@@ -141,19 +141,22 @@ class JXP2SQL {
             const schema = await this.schema(collection);
             const original_fields = schema.map(field => field.original);
             const fields = schema.map(field => field.name);
-            const data = (await this.apihelper.get(collection, { fields: fields.join(",") })).data;
+            const data = (await this.apihelper.get(collection, { fields: original_fields.join(",") })).data;
             const prepped_data = await this.prep_data(collection, data);
             const rows = [];
-            for (let row of data) {
+            for (let row of prepped_data) {
                 let row_data = [];
                 for (let field of fields) {
                     row_data.push(row[field] ? mysql.escape(row[field]) : "NULL");
                 }
                 rows.push(row_data);
             }
-            const sql = `INSERT INTO ${pluralize(collection)} (${fields.join(", ")}) VALUES ${rows.map(row => `(${ row.join(", ") })`).join(", ")}`;
-            const result = await this.query(sql);
-            return result;
+            let results = [];
+            while(rows.length) {
+                const sql = `INSERT INTO ${pluralize(collection)} (${fields.join(", ")}) VALUES ${rows.splice(0, 1000).map(row => `(${ row.join(", ") })`).join(", ")}`;
+                results.push(await this.query(sql));
+            }
+            return results;
         } catch(err) {
             console.log("Error!");
             console.error(err);

@@ -48,7 +48,7 @@ describe("JXP2MySql", () => {
     })
     test("It should upload a collection", async() => {
         const result = await jxp2mysql.upload_collection("checkin");
-        expect(result.affectedRows).toBeGreaterThan(1);
+        expect(result[0].affectedRows).toBeGreaterThan(1);
     })
     test("It should delete a table", async () => {
         const result = await jxp2mysql.delete_table("checkin");
