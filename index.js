@@ -24,6 +24,7 @@ const main = async () => {
                 const jxp2sql = new Jxp2Sql();
                 await jxp2sql.connect();
                 await jxp2sql.create_table(collection)
+                console.log(`Done Setting up ${collection}`);
             }
         }
         if (options.upload) {
@@ -32,6 +33,7 @@ const main = async () => {
                 const jxp2sql = new Jxp2Sql();
                 await jxp2sql.connect();
                 await jxp2sql.upload_collection(collection)
+                console.log(`Done Uploading ${collection}`);
             }
         }
         if (options.daemon) {
