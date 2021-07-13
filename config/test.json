@@ -1,0 +1,15 @@
+{
+    "mysql": {
+        "host": "localhost",
+        "database": "test"
+    },
+    "mongo": {
+        "connection_string": "mongodb://localhost/mock?retryWrites=true&w=majority",
+        "options": {
+            "poolSize": 10
+        }
+    },
+    "jxp": {
+        "server": "https://api.dev1.workspaceman.nl"
+    }
+}
