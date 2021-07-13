@@ -1,6 +1,6 @@
 const Jxp2Sql = require("../libs/jxp2mysql");
 
-describe("Initialise", () => {
+describe("JXP2MySql", () => {
     const jxp2mysql = new Jxp2Sql();
     test("It should connect to MySql", async () => {
         expect(jxp2mysql).toBeDefined();

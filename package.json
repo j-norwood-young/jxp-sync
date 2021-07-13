@@ -4,7 +4,9 @@
   "description": "Syncs JXP databases to Sql-based databases... live!",
   "main": "index.js",
   "scripts": {
-    "test": "jest test"
+    "test": "jest test",
+    "run": "npm index",
+    "test:mongostream": "env NODE_ENV=test jest test/mongostream.test.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +26,7 @@
   },
   "homepage": "https://github.com/j-norwood-young/jxp-sync#readme",
   "dependencies": {
+    "@google-cloud/pubsub": "^2.16.0",
     "commander": "^8.0.0",
     "config": "^3.3.6",
     "dotenv": "^10.0.0",
@@ -32,7 +35,6 @@
     "moment": "^2.29.1",
     "mongodb": "^3.6.10",
     "mongoose-legacy-pluralize": "^1.0.2",
-    "mysql": "^2.18.1",
-    "mysql2": "^2.2.5"
+    "mysql": "^2.18.1"
   }
 }

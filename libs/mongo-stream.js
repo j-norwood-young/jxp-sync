@@ -1,49 +1,52 @@
 const config = require("config");
 const { MongoClient } = require("mongodb");
-const Kafka = require('@revengine/common/kafka');
+const Jxp2Sql = require("./jxp2mysql");
+const pluralize = require("mongoose-legacy-pluralize");
 
-class MongoKafkaStream {
-    constructor(table) {
+class MongoStream {
+    constructor() {
         try {
-            this.client = new MongoClient(config.api.mongo.connection_string);
-            this.table = table;
+            this.client = new MongoClient(config.mongo.connection_string);
             this.changeStream = null;
+            this.jxp2mysql = new Jxp2Sql();
         } catch(err) {
             console.error(err);
         }
     }
 
-    async run() {
+    async connect() {
+        await this.jxp2mysql.connect();
+        await this.client.connect();
+        this.database = await this.client.db();
+    }
+
+    watch(collection) {
         try {
-            // console.log("Table", this.table)
-            this.producer = new Kafka.KafkaProducer({ topic: "mongodb_stream", debug: false });
-            await this.client.connect();
-            const database = await this.client.db();
-            const collection = database.collection(this.table);
-            // open a Change Stream on the "movies" collection
-            this.changeStream = collection.watch();
-            // set up a listener when change events are emitted
+            const dbcollection = this.database.collection(pluralize(collection));
+            this.changeStream = dbcollection.watch();
             this.changeStream.on("change", async evt => {
+                // console.log(evt);
                 try {
-                    // console.log(evt);
                     if (evt.operationType === "insert") {
-                        await this.producer.send({ event: "insert", table: this.table, document: evt.fullDocument });
+                        const fullDocument = JSON.parse(JSON.stringify(evt.fullDocument));
+                        await this.jxp2mysql.insert_row(collection, Object.assign({}, fullDocument));
                     } else if (evt.operationType === "update") {
-                        await this.producer.send({ event: "update", table: this.table, _id: evt.documentKey._id, updated_fields: evt.updateDescription.updatedFields });
+                        const updatedFields = JSON.parse(JSON.stringify(evt.updateDescription.updatedFields));
+                        await this.jxp2mysql.update_row(collection, evt.documentKey._id.toString(), updatedFields);
                     }
                 } catch(err) {
                     console.log(JSON.stringify(err, null, "   "));
                 }
             });
-            await new Promise(resolve => {
-                // Keep us listening...
-            });
+            // await new Promise(resolve => {
+            //     // Keep us listening...
+            // });
         } catch(err) {
             console.error(err)
         } finally {
-            await this.client.close();
+            // await this.client.close();
         }
     }
 }
 
-module.exports = MongoKafkaStream;
+module.exports = MongoStream;

@@ -189,6 +189,7 @@ class JXP2SQL {
             const fields = Object.keys(prepped_data);
             const values = Object.values(prepped_data).map(d => mysql.escape(d));
             const sql = `INSERT INTO ${pluralize(collection)} (${fields.join(", ")}) VALUES (${values.join(", ")})`;
+            // console.log(sql);
             const result = await this.query(sql);
             return result;
         } catch(err) {
