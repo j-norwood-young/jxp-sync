@@ -171,18 +171,18 @@ class JXP2SQL {
         }
     }
 
-    async update_table() { //TODO
-        try {
-            const [metadata] = await table.getMetadata();
-            metadata.schema = await this.schema(this.collection);
-            await table.setMetadata(metadata);
-            return true;
-        } catch(err) {
-            console.log(JSON.stringify(err, null, "   "));
-        }
-    }
+    // async update_table() { //TODO
+    //     try {
+    //         const [metadata] = await table.getMetadata();
+    //         metadata.schema = await this.schema(this.collection);
+    //         await table.setMetadata(metadata);
+    //         return true;
+    //     } catch(err) {
+    //         console.log(JSON.stringify(err, null, "   "));
+    //     }
+    // }
 
-    async insert_row(collection, data) { // TODO
+    async insert_row(collection, data) {
         try {
             const [prepped_data] = await this.prep_data(collection, [data]);
             // console.log(prepped_data);
@@ -196,7 +196,7 @@ class JXP2SQL {
         }
     }
 
-    async update_row(collection, _id, data) { // TODO
+    async update_row(collection, _id, data) {
         try {
             const [prepped_data] = await this.prep_data(collection, [data]);
             const updates = [];
