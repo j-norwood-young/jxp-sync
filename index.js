@@ -24,7 +24,7 @@ const main = async () => {
             for (let collection of collections) {
                 console.log(`Setting up ${collection}`);
                 const jxp2sql = new Jxp2Sql();
-                await jxp2sql.connect();
+                // await jxp2sql.connect();
                 await jxp2sql.create_table(collection)
                 console.log(`Done Setting up ${collection}`);
             }
@@ -32,6 +32,7 @@ const main = async () => {
         if (options.truncate) {
             for (let collection of collections) {
                 console.log(`Truncating ${collection}`);
+                const jxp2sql = new Jxp2Sql();
                 await jxp2sql.clear_table(collection);
                 console.log(`Done Truncating ${collection}`);
             }
@@ -40,7 +41,7 @@ const main = async () => {
             for (let collection of collections) {
                 console.log(`Uploading ${collection}`);
                 const jxp2sql = new Jxp2Sql();
-                await jxp2sql.connect();
+                // await jxp2sql.connect();
                 await jxp2sql.upload_collection(collection)
                 console.log(`Done Uploading ${collection}`);
             }

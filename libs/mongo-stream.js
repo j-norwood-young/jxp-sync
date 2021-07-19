@@ -15,7 +15,7 @@ class MongoStream {
     }
 
     async connect() {
-        await this.jxp2mysql.connect();
+        // await this.jxp2mysql.connect();
         await this.client.connect();
         this.database = await this.client.db();
     }
