@@ -25,7 +25,6 @@ class MongoStream {
             const dbcollection = this.database.collection(pluralize(collection));
             this.changeStream = dbcollection.watch();
             this.changeStream.on("change", async evt => {
-                // console.log(evt);
                 try {
                     if (evt.operationType === "insert") {
                         const fullDocument = JSON.parse(JSON.stringify(evt.fullDocument));
@@ -38,13 +37,8 @@ class MongoStream {
                     console.log(JSON.stringify(err, null, "   "));
                 }
             });
-            // await new Promise(resolve => {
-            //     // Keep us listening...
-            // });
         } catch(err) {
             console.error(err)
-        } finally {
-            // await this.client.close();
         }
     }
 }
