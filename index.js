@@ -7,7 +7,9 @@ program
 .option('-c, --collections <collections...>', 'JXP collection')
 .option('-s, --setup', 'setup')
 .option('-u, --upload', 'upload')
-.option('-d, --daemon', 'daemon mode');
+.option('-t, --truncate', 'truncate')
+.option('-d, --daemon', 'daemon mode')
+;
 
 program.parse(process.argv);
 const options = program.opts();
@@ -25,6 +27,13 @@ const main = async () => {
                 await jxp2sql.connect();
                 await jxp2sql.create_table(collection)
                 console.log(`Done Setting up ${collection}`);
+            }
+        }
+        if (options.truncate) {
+            for (let collection of collections) {
+                console.log(`Truncating ${collection}`);
+                await jxp2sql.clear_table(collection);
+                console.log(`Done Truncating ${collection}`);
             }
         }
         if (options.upload) {
