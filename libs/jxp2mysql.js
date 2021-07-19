@@ -17,16 +17,16 @@ const type_conversion_table = {
 class JXP2SQL {
     constructor() {
         this.apihelper = new Apihelper({ apikey: process.env.APIKEY, server: config.jxp.server });
-        this.connection = null;
-    }
-
-    connect() {
-        this.connection = mysql.createConnection({
+        this.connection = mysql.createPool({
+            connectionLimit : 10,
             host: config.mysql.host || "localhost",
             user: process.env.MYSQL_USER,
             password: process.env.MYSQL_PASSWORD,
             database: config.mysql.database || "revengine"
         });
+    }
+
+    connect() {
         return new Promise((resolve, reject) => {
             this.connection.connect(err => {
                 if (err) return reject(err);
@@ -36,7 +36,8 @@ class JXP2SQL {
         })
     }
 
-    query(sql) {
+    async query(sql) {
+        // await this.connect();
         return new Promise((resolve, reject) => {
             this.connection.query(sql, (err, results, fields) => {
                 if (err) return reject(err);
@@ -114,6 +115,7 @@ class JXP2SQL {
 
     async create_table(collection) {
         try {
+            // await this.connect();
             const schema = await this.schema(collection);
             const fields = schema.map(field => {
                 return `${field.name} ${field.type}${field.name === "_id" ? " PRIMARY KEY" : ""}`
@@ -128,6 +130,7 @@ class JXP2SQL {
 
     async clear_table(collection) {
         try {
+            // await this.connect();
             const sql = `TRUNCATE TABLE ${pluralize(collection)}`;
             const result = await this.query(sql);
             return result;
@@ -138,6 +141,7 @@ class JXP2SQL {
 
     async upload_collection(collection) {
         try {
+            // await this.connect();
             const schema = await this.schema(collection);
             const original_fields = schema.map(field => field.original);
             const fields = schema.map(field => field.name);
@@ -166,6 +170,7 @@ class JXP2SQL {
 
     async delete_table(collection) {
         try {
+            // await this.connect();
             const sql = `DROP TABLE ${pluralize(collection)}`;
             const result = await this.query(sql);
             return result;
@@ -187,6 +192,7 @@ class JXP2SQL {
 
     async insert_row(collection, data) {
         try {
+            // await this.connect();
             const [prepped_data] = await this.prep_data(collection, [data]);
             // console.log(prepped_data);
             const fields = Object.keys(prepped_data);
@@ -202,6 +208,7 @@ class JXP2SQL {
 
     async update_row(collection, _id, data) {
         try {
+            // await this.connect();
             const [prepped_data] = await this.prep_data(collection, [data]);
             const updates = [];
             for (let i in prepped_data) {
