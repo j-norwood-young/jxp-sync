@@ -2,6 +2,7 @@ const Jxp2Sql = require("./libs/jxp2mysql");
 const { Command } = require('commander');
 const program = new Command();
 const MongoStream = require("./libs/mongo-stream");
+const config = require("config");
 
 program
 .option('-c, --collections <collections...>', 'JXP collection')
