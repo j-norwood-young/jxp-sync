@@ -17,8 +17,7 @@ const options = program.opts();
 const main = async () => {
     try {
         console.log(options);
-        if (!options.collections) throw "Collection required";
-        const collections = options.collections;
+        const collections = options.collections || config.collections;
 
         if (options.setup) {
             for (let collection of collections) {
